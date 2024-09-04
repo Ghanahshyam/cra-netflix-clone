@@ -10,7 +10,12 @@
   Other libs like Redux Form is overhead(Data is client side, minifined bundle size, and EVERY SINGLE KEYSTROKE will call redux reducers multiple time)
 - Form Validation
 - useRef Hook 
-- 
+- Firebase setup
+- CI/CD setup with firebase so deploy code once it merge with main
+- Redux setup Created user slice and app store 
+- Signin/singout displayed in header
+- use of selector and slice to share/update data between components
+
 # Features
 - Non- loggedin
     - SingIn / Singup Form

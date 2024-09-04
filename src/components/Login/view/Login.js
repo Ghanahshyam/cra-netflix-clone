@@ -1,25 +1,78 @@
 import React, { useRef, useState } from "react";
 import Header from "../../Header/view/Header";
-import { Form } from "react-router-dom";
+import { Form, useNavigate } from "react-router-dom";
 import { checkValidateData } from "../../../utils/validate";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth } from "../../../utils/firebase";
+import { useDispatch } from "react-redux";
+import { addUser } from "../../../utils/userSlice";
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
+  const navigate = useNavigate();
+  const dispatch =  useDispatch();
   const email = useRef(null);
   const password = useRef(null);
   const name = useRef(null);
 
   const toggleSignInForm = () => {
-
     setIsSignInForm(!isSignInForm);
   };
 
   const handleButtonClick = (event) => {
     event.preventDefault();
-    const message = checkValidateData(isSignInForm, email.current.value, password.current.value, name?.current?.value);
+    const message = checkValidateData(
+      isSignInForm,
+      email.current.value,
+      password.current.value,
+      name?.current?.value
+    );
     setErrorMsg(message);
-  }
+    if (message) return;
+
+    if (!isSignInForm) {
+      createUserWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          // Signed up
+          const user = userCredential.user;
+          console.log('Singed Up user ', user);
+          updateProfile(auth.currentUser, {
+            displayName: name.current.value,
+            photoURL: 'https://media.licdn.com/dms/image/v2/D4D03AQELINwCSWgJNw/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1691239087155?e=1730937600&v=beta&t=MzDIT15M74h0l76C_dK50AYCplVa5VT1uVkqtcWRNe4'
+          }).then(() => {
+            const {uid, email, photoURL, displayName} = auth.currentUser;
+            dispatch(addUser({
+              uid, email, photoURL, displayName
+            }));
+            navigate("/browse");
+          }).catch((error) => {
+            setErrorMsg(error.code + "-" + error.errorMsg);
+          })
+          // ...
+        })
+        .catch((error) => {
+          setErrorMsg(error.code + "-" + error.message);
+          // ..
+        });
+    } else {
+      signInWithEmailAndPassword(auth, email.current.value, password.current.value)
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user;
+          console.log('Singed In user ', user );
+          navigate('/browse');
+          // ...
+        })
+        .catch((error) => {
+          setErrorMsg(error.code + "-" + error.message);
+        });
+    }
+  } 
 
   return (
     <div>
