@@ -15,6 +15,8 @@
 - Redux setup Created user slice and app store 
 - Signin/singout displayed in header
 - use of selector and slice to share/update data between components
+- TMDB API setup for displaying movie details and youtube embeded for background movie trailer.
+- Created movie slice for sharing movie data.
 
 # Features
 - Non- loggedin
